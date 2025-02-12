@@ -37,12 +37,9 @@ client.on('messageCreate', async (message) => {
     if (response.data.output) {
       const formattedMessage = formatMessage(response.data.output);
       message.reply(formattedMessage);
-    } else {
-      message.reply('Desculpe, não consegui encontrar uma resposta para isso.');
     }
   } catch (error) {
     console.error('Erro ao acessar o n8n:', error);
-    message.reply('Houve um erro ao processar sua pergunta.');
   }
 });
 
