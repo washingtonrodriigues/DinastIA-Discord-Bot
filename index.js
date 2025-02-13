@@ -36,16 +36,21 @@ client.on('messageCreate', async (message) => {
 
     if (response.data.output) {
       const formattedMessage = formatMessage(response.data.output);
-      message.reply(formattedMessage);
+      message.reply({
+        content: formattedMessage,
+        allowedMentions: { parse: [] },
+        flags: 1 << 2,
+      });
     }
   } catch (error) {
     console.error('Erro ao acessar o n8n:', error);
   }
 });
 
-// Função para desativar o preview dos links
 const formatMessage = (text) => {
-  return text.replace(/https:\/\/\S+/g, (link) => `<${link}>`);
+  return text.replace(/https:\/\/\S+/g, (link) => {
+    return link.replace('https://', 'https://\u200B');
+  });
 };
 
 client.login(BOT_TOKEN);
