@@ -3,6 +3,8 @@ const { Client, GatewayIntentBits } = pkg;
 
 import axios from 'axios';
 import dotenv from 'dotenv';
+import heyDinastia from './heydinastia';
+import { sendThanksToN8N } from './thanks';
 
 dotenv.config();
 
@@ -15,7 +17,7 @@ const client = new Client({
 });
 
 const BOT_TOKEN = process.env.BOT_TOKEN;
-const N8N_WEBHOOK_URL = process.env.N8N_WEBHOOK_URL;
+const HEY_DINASTIA_WEBHOOK = process.env.HEY_DINASTIA_WEBHOOK;
 const DOUBTS_CHANNEL_ID = process.env.DOUBTS_CHANNEL_ID;
 const THANKS_CHANNEL_ID = process.env.THANKS_CHANNEL_ID;
 
@@ -28,29 +30,15 @@ client.on('messageCreate', async (message) => {
 
   if (message.channel.id !== (DOUBTS_CHANNEL_ID || THANKS_CHANNEL_ID)) return;
 
-  try {
-    const response = await axios.post(N8N_WEBHOOK_URL, {
-      question: message.content,
-      userId: message.author.id,
-    });
+  switch (message.channel.id) {
+    case DOUBTS_CHANNEL_ID:
+      heyDinastia(message, HEY_DINASTIA_WEBHOOK);
+      break;
 
-    if (response.data.output) {
-      const formattedMessage = formatMessage(response.data.output);
-      message.reply({
-        content: formattedMessage,
-        allowedMentions: { parse: [] },
-        flags: 1 << 2,
-      });
-    }
-  } catch (error) {
-    console.error('Erro ao acessar o n8n:', error);
+    case THANKS_CHANNEL_ID:
+      sendThanksToN8N(message);
+      break;
   }
 });
-
-const formatMessage = (text) => {
-  return text.replace(/https:\/\/\S+/g, (link) => {
-    return link.replace('https://', 'https://\u200B');
-  });
-};
 
 client.login(BOT_TOKEN);
