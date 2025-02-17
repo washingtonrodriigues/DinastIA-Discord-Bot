@@ -18,9 +18,3 @@ export default async function heyDinastia(message, webhookUrl) {
     console.error('Erro ao acessar o n8n:', error);
   }
 }
-
-const formatMessage = (text) => {
-  return text.replace(/https:\/\/\S+/g, (link) => {
-    return link.replace('https://', 'https://\u200B');
-  });
-};

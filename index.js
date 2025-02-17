@@ -1,10 +1,9 @@
 import pkg from 'discord.js';
 const { Client, GatewayIntentBits } = pkg;
 
-import axios from 'axios';
 import dotenv from 'dotenv';
 import heyDinastia from './heydinastia';
-import { sendThanksToN8N } from './thanks';
+import { sendThanks, scheduleRankingJob } from './supportRanking';
 
 dotenv.config();
 
@@ -17,18 +16,21 @@ const client = new Client({
 });
 
 const BOT_TOKEN = process.env.BOT_TOKEN;
-const HEY_DINASTIA_WEBHOOK = process.env.HEY_DINASTIA_WEBHOOK;
+
 const DOUBTS_CHANNEL_ID = process.env.DOUBTS_CHANNEL_ID;
 const THANKS_CHANNEL_ID = process.env.THANKS_CHANNEL_ID;
 
+const HEY_DINASTIA_WEBHOOK = process.env.HEY_DINASTIA_WEBHOOK;
+const SEND_THANKS_WEBHOOK = process.env.SEND_THANKS_WEBHOOK;
+const SUPPORT_RANKING_WEBHOOK = process.env.SUPPORT_RANKING_WEBHOOK;
+
 client.once('ready', () => {
   console.log('Jurema está online!');
+  scheduleRankingJob(client, SUPPORT_RANKING_WEBHOOK, THANKS_CHANNEL_ID);
 });
 
 client.on('messageCreate', async (message) => {
   if (message.author.bot) return;
-
-  if (message.channel.id !== (DOUBTS_CHANNEL_ID || THANKS_CHANNEL_ID)) return;
 
   switch (message.channel.id) {
     case DOUBTS_CHANNEL_ID:
@@ -36,7 +38,13 @@ client.on('messageCreate', async (message) => {
       break;
 
     case THANKS_CHANNEL_ID:
-      sendThanksToN8N(message);
+      await sendThanks(message, SEND_THANKS_WEBHOOK);
+      break;
+
+    default:
+      console.error(
+        'A mensagem não é do canal de agradencimentos nem dúvidas.',
+      );
       break;
   }
 });
