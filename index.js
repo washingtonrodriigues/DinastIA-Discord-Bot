@@ -42,9 +42,6 @@ client.on('messageCreate', async (message) => {
       break;
 
     default:
-      console.error(
-        'A mensagem não é do canal de agradencimentos nem dúvidas.',
-      );
       break;
   }
 });
