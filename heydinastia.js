@@ -1,6 +1,7 @@
 import axios from 'axios';
 
 export default async function heyDinastia(message, webhookUrl) {
+  if(!message.content.includes("#heydinastia")) return
   try {
     const response = await axios.post(webhookUrl, {
       question: message.content,
