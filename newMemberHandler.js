@@ -5,12 +5,12 @@ export async function handleNewMember(member) {
 
 
   let category = guild.channels.cache.find(
-    (c) => c.name === 'ONBOARDING' && c.type === ChannelType.GuildCategory
+    (c) => c.name === 'onboard' && c.type === ChannelType.GuildCategory
   );
 
   if (!category) {
     category = await guild.channels.create({
-      name: 'ONBOARDING',
+      name: 'onboard',
       type: ChannelType.GuildCategory,
     });
   }
