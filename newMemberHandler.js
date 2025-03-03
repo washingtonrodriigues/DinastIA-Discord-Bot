@@ -3,17 +3,28 @@ import { ChannelType, PermissionFlagsBits } from 'discord.js';
 export async function handleNewMember(member) {
   const guild = member.guild;
 
-
   let category = guild.channels.cache.find(
     (c) => c.name === 'onboard' && c.type === ChannelType.GuildCategory
   );
 
   if (!category) {
-    category = await guild.channels.create({
-      name: 'onboard',
-      type: ChannelType.GuildCategory,
-    });
+    console.error("A categoria selecionada não existe.")
   }
+
+  let washington = guild.members.cache.find(
+    (m) => m.user.username === "washingtonrodriigues"
+  );
+  
+  if (!washington) {
+    try {
+      washington = await guild.members.fetch({ query: "washingtonrodriigues", limit: 1 })
+        .then((members) => members.first())
+        .catch(() => null);
+    } catch (err) {
+      console.error("Erro ao buscar o usuário washingtonrodriigues:", err);
+    }
+  }
+  
 
   const channel = await guild.channels.create({
     name: `${member.user.username}`,
@@ -37,9 +48,9 @@ export async function handleNewMember(member) {
         allow: [PermissionFlagsBits.ViewChannel],
       },
       {
-        id: guild.members.cache.find((member) => member.user.username === 'washingtonrodriigues')?.user.id, 
+        id: washington.user.id, 
         allow: [PermissionFlagsBits.ViewChannel],
-      }
+      },
     ],
   });
 
