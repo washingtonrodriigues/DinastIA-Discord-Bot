@@ -2,7 +2,7 @@ export async function handleMemberLeave(member) {
     const guild = member.guild;
   
     const channel = guild.channels.cache.find(
-      (c) => c.name === `${member.user.username}` && c.parent?.name === 'ONBOARDING'
+      (c) => c.name === `${member.user.username}` && c.parent?.name === 'onboard'
     );
   
     if (channel) {
