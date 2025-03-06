@@ -17,7 +17,7 @@ export async function cleanInactiveOnboardingChannels(guild) {
 
   for (const channel of channels.values()) {
     try {
-      if (channel.name === "🚀-comece-aqui") continue;
+      if (channel.name === ('🚀-comece-aqui', '🚀｜comece-aqui')) continue;
 
       const messages = await channel.messages.fetch({ limit: 10 });
 
