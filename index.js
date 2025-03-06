@@ -4,9 +4,10 @@ const { Client, GatewayIntentBits } = pkg;
 import dotenv from 'dotenv';
 import heyDinastia from './heydinastia';
 import { sendThanks, scheduleRankingJob } from './supportRanking';
-import { handleNewMember } from './newMemberHandler';
 import { handleMemberLeave } from './memberLeaveHandler';
 import juremaOnboarding from './juremaOnboarding';
+import {  startOnboardingCleanup } from './cleanInactiveOnboardChannels';
+import { handleOnboardingInteraction } from './handleOnboardingInteraction';
 
 dotenv.config();
 
@@ -31,14 +32,15 @@ const JUREMA_ONBOARDING_WEBHOOK = process.env.JUREMA_ONBOARDING_WEBHOOK
 
 const ONBOARDING_CATEGORY_ID = process.env.ONBOARDING_CATEGORY_ID;
 
-client.once('ready', () => {
+client.once('ready', async () => {
   console.log('Jurema está online!');
   scheduleRankingJob(client, SUPPORT_RANKING_WEBHOOK, THANKS_CHANNEL_ID);
+  startOnboardingCleanup(client)
 });
 
-client.on('guildMemberAdd', async (member) => {
-  await handleNewMember(member);
-});
+client.on('interactionCreate', async (interaction) => {
+  await handleOnboardingInteraction(interaction);
+})
 
 client.on('guildMemberRemove', async (member) => {
   await handleMemberLeave(member);
