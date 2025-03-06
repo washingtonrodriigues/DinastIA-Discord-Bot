@@ -8,6 +8,7 @@ import { handleMemberLeave } from './memberLeaveHandler';
 import juremaOnboarding from './juremaOnboarding';
 import {  startOnboardingCleanup } from './cleanInactiveOnboardChannels';
 import { handleOnboardingInteraction } from './handleOnboardingInteraction';
+import { startOnboardingChannel } from './startOnboardChannel';
 
 dotenv.config();
 
@@ -35,6 +36,13 @@ const ONBOARDING_CATEGORY_ID = process.env.ONBOARDING_CATEGORY_ID;
 client.once('ready', async () => {
   console.log('Jurema está online!');
   scheduleRankingJob(client, SUPPORT_RANKING_WEBHOOK, THANKS_CHANNEL_ID);
+  const guild = client.guilds.cache.first(); 
+  if (guild) {
+
+    await startOnboardingChannel(guild);
+  } else {
+    console.error("❌ Nenhuma guild encontrada.");
+  }
   startOnboardingCleanup(client)
 });
 
