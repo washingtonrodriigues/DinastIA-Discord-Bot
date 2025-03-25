@@ -40,6 +40,7 @@ export async function handleOnboardingInteraction(interaction) {
     if (privateChannelAlreadyExists) {
       return interaction.reply({
         content: 'Você já possui um canal privado de onboarding!',
+        ephemeral: true,
       });
     }
 
