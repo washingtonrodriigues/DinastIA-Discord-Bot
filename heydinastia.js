@@ -1,11 +1,12 @@
 import axios from 'axios';
 
-export default async function heyDinastia(message, webhookUrl) {
-  if(!message.content.includes("#heydinastia")) return
+export default async function heyDinastia(message, webhookUrl, tag) {
+  if (!message.content.includes('#heydinastia')) return;
   try {
     const response = await axios.post(webhookUrl, {
       question: message.content,
       channelId: message.channel.id,
+      tag: tag,
     });
 
     if (response.data.output) {
