@@ -23,7 +23,7 @@ client.once('ready', async () => {
 
   await PurchaseValidationHandlers.sendInitialMessage(client);
 
-  CronService.initializeAllCronJobs();
+  CronService.initializeAllCronJobs(client);
 
   const guild = client.guilds.cache.first();
   if (guild) {
