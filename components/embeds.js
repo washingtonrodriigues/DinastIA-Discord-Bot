@@ -9,6 +9,7 @@ function createWelcomeEmbed(
   description,
   fieldName,
   fieldValue,
+  color,
   footerText,
   footerIcon,
   thumbnailUrl,
@@ -24,7 +25,7 @@ function createWelcomeEmbed(
       text: footerText,
       iconURL: footerIcon,
     })
-    .setColor('Green')
+    .setColor(color)
     .setThumbnail(thumbnailUrl);
 }
 
