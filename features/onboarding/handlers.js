@@ -208,7 +208,8 @@ export async function handleClearInactiveChannels(guild) {
 
   for (const channel of channels.values()) {
     try {
-      if (channel.name === ('🚀-comece-aqui' || '🚀｜comece-aqui')) continue;
+      if (['🚀-comece-aqui', '🚀｜comece-aqui'].includes(channel.name))
+        continue;
 
       const messages = await channel.messages.fetch({ limit: 10 });
 
