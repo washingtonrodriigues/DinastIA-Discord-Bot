@@ -1,21 +1,14 @@
 import axios from 'axios';
 import { config } from '../../config/config';
+import getSupportRanking from '../../services/supportRankingService';
 
 export async function handleGetDailyRanking(client) {
   try {
     console.log('📊 Buscando dados de ranking de suporte...');
 
-    const response = await axios.get(config.WEBHOOKS.SUPPORT_RANKING);
-    const rankingData = response.data.message;
+    const rankingData = await getSupportRanking();
 
-    if (!rankingData) {
-      console.error('❌ Dados de ranking inválidos ou vazios.');
-      return;
-    }
-
-    const channel = await client.channels.fetch(
-      config.CHANNELS.SUPPORT_CHANNEL_ID,
-    );
+    const channel = await client.channels.fetch(config.CHANNELS_ID.SUPPORT);
 
     if (!channel) {
       console.error('❌ Canal de ranking não encontrado!');
