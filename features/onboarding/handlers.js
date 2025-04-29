@@ -4,6 +4,11 @@ import createButton from '../../components/buttons';
 
 import { ChannelType, ActionRowBuilder, PermissionFlagsBits } from 'discord.js';
 import juremaInteraction from '../../services/juremaOnboardingService';
+import {
+  createSafeChannelName,
+  isMatchingChannel,
+  logNormalization,
+} from '../../helpers/normalization';
 
 export async function sendInitialMessage(guild) {
   try {
@@ -106,6 +111,8 @@ export async function handleButtonInteraction(interaction) {
     const guild = interaction.guild;
     const member = interaction.member;
 
+    console.log(`Iniciando onboarding para: ${member.user.username}`);
+
     const category = guild.channels.cache.find(
       (c) => c.name === 'onboard' && c.type === ChannelType.GuildCategory,
     );
@@ -132,19 +139,27 @@ export async function handleButtonInteraction(interaction) {
       }
     }
 
-    const privateChannelAlreadyExists = guild.channels.cache.find(
-      (g) => g.name === member.user.username,
+    const safeChannelName = createSafeChannelName(member.user.username);
+    console.log(`Nome de canal seguro criado: ${safeChannelName}`);
+
+    const privateChannelAlreadyExists = guild.channels.cache.find((channel) =>
+      isMatchingChannel(member.user.username, channel.name),
     );
 
     if (privateChannelAlreadyExists) {
+      console.log(
+        `Canal já existe para ${member.user.username}: ${privateChannelAlreadyExists.name}`,
+      );
       return interaction.reply({
         content: 'Você já possui um canal privado de onboarding!',
         ephemeral: true,
       });
     }
 
+    const originalUsername = member.user.username;
+
     const privateChannel = await guild.channels.create({
-      name: `${member.user.username}`,
+      name: normalizedUsername,
       type: ChannelType.GuildText,
       parent: category.id,
       permissionOverwrites: [
@@ -165,15 +180,30 @@ export async function handleButtonInteraction(interaction) {
           allow: [PermissionFlagsBits.ViewChannel],
         },
         {
-          id: washington.user.id,
+          id: washington?.user?.id,
           allow: [PermissionFlagsBits.ViewChannel],
         },
       ],
     });
 
+    console.log(
+      `Canal criado: ${privateChannel.name} para usuário ${originalUsername}`,
+    );
+
+    try {
+      console.log(`MAPEAMENTO: ${originalUsername} -> ${privateChannel.name}`);
+    } catch (err) {
+      console.error('Erro ao registrar mapeamento:', err);
+    }
+
     await privateChannel.send(
       `**Olá, ${member.user}, seja bem-vindo(a) à DinastIA!**\n\n Este canal é privado e somente você e os admins podem vê-lo. Aqui você poderá para tirar dúvidas comigo a respeito dos nossos Canais, Cargos, Trilhas e Agentes e eu irei te guiar da melhor forma nos seus primeiros passos.\n\nPara que possamos iniciar, me conte um pouco sobre o seu nível de conhecimento com Agentes IA. Você já trabalha com automações ou é seu primeiro contato?`,
     );
+
+    return interaction.reply({
+      content: `Canal privado de onboarding criado! Por favor, verifique o canal #${privateChannel.name}.`,
+      ephemeral: true,
+    });
   }
 }
 
@@ -181,11 +211,27 @@ export async function handleJuremaInteraction(message) {
   try {
     if (message.author.bot) return;
 
-    if (
-      message.channel.parentId === config.CATEGORIES_ID.ONBOARDING &&
-      message.channel.name === message.author.username
-    ) {
+    console.log(`Verificando mensagem de: ${message.author.username}`);
+    console.log(`Nome do canal: ${message.channel.name}`);
+    console.log(`ID da categoria: ${message.channel.parentId}`);
+
+    const isOnboardingCategory =
+      message.channel.parentId === config.CATEGORIES_ID.ONBOARDING;
+
+    const isUserChannel = isMatchingChannel(
+      message.author.username,
+      message.channel.name,
+    );
+
+    logNormalization(message.author.username, message.channel.name);
+
+    if (isOnboardingCategory && isUserChannel) {
+      console.log(`Condições satisfeitas para: ${message.author.username}`);
       await juremaInteraction(message, config.WEBHOOKS.JUREMA_ONBOARDING);
+    } else {
+      console.log(
+        `Condições não satisfeitas. OnboardingCategory: ${isOnboardingCategory}, UserChannel: ${isUserChannel}`,
+      );
     }
   } catch (error) {
     console.error('Erro ao processar interação com Jurema:', error);
