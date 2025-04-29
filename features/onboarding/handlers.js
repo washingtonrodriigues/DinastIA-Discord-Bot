@@ -271,23 +271,89 @@ export async function handleClearInactiveChannels(guild) {
   }
 }
 
+/**
+ * Função melhorada para lidar com a saída de membros do servidor
+ * Deleta o canal de onboarding correspondente ao usuário que saiu
+ *
+ * @param {GuildMember} member - O membro que saiu do servidor
+ */
 export async function handleMemberLeave(member) {
   const guild = member.guild;
+  const username = member.user.username;
 
-  const channel = guild.channels.cache.find(
-    (c) => c.name === `${member.user.username}` && c.parent?.name === 'onboard',
+  console.log(
+    `Membro ${username} (${member.user.tag}) saiu do servidor. Procurando canal para excluir...`,
   );
 
-  if (channel) {
-    try {
-      await channel.delete();
-      console.log(
-        `🗑️ Canal ${channel.name} excluído porque ${member.user.tag} saiu do servidor.`,
-      );
-    } catch (error) {
-      console.error(`❌ Erro ao excluir o canal: ${error}`);
+  const onboardCategory = guild.channels.cache.find(
+    (c) => c.name === 'onboard' && c.type === ChannelType.GuildCategory,
+  );
+
+  if (!onboardCategory) {
+    console.log(`Categoria 'onboard' não encontrada. Nenhuma ação necessária.`);
+    return;
+  }
+
+  const onboardChannels = onboardCategory.children.cache.filter(
+    (c) =>
+      c.type === ChannelType.GuildText &&
+      !['🚀-comece-aqui', '🚀｜comece-aqui'].includes(c.name),
+  );
+
+  console.log(
+    `Encontrados ${onboardChannels.size} canais na categoria onboard.`,
+  );
+
+  const userChannel = onboardChannels.find((channel) => {
+    const matches = isMatchingChannel(username, channel.name);
+
+    if (matches) {
+      logNormalization(username, channel.name);
     }
-  } else {
+
+    return matches;
+  });
+
+  if (!userChannel) {
+    console.log(
+      `Nenhum canal com nome correspondente a ${username} encontrado. Verificando tópicos...`,
+    );
+
+    const channelByTopic = onboardChannels.find((channel) => {
+      if (channel.topic?.includes(username)) {
+        console.log(
+          `Canal encontrado pelo tópico: ${channel.name}, tópico: ${channel.topic}`,
+        );
+        return true;
+      }
+      return false;
+    });
+
+    if (channelByTopic) {
+      try {
+        await channelByTopic.delete();
+        console.log(
+          `🗑️ Canal ${channelByTopic.name} excluído porque ${member.user.tag} saiu do servidor (correspondência por tópico).`,
+        );
+      } catch (error) {
+        console.error(
+          `❌ Erro ao excluir o canal ${channelByTopic.name}:`,
+          error,
+        );
+      }
+      return;
+    }
+
     console.log(`ℹ️ Nenhum canal encontrado para ${member.user.tag}.`);
+    return;
+  }
+
+  try {
+    await userChannel.delete();
+    console.log(
+      `🗑️ Canal ${userChannel.name} excluído porque ${member.user.tag} saiu do servidor.`,
+    );
+  } catch (error) {
+    console.error(`❌ Erro ao excluir o canal: ${error}`);
   }
 }
