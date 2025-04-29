@@ -39,7 +39,7 @@ export const config = {
         'Clique no botão "Solicitar Verificação" para começar.',
 
       ERROR_VALIDATION:
-        'Infelizmente não conseguimos verificar seu email. Por favor, confirme se o seus dados estão corretos, tente novamente ou chame um membro de nossa equipe.',
+        'Cadastro já validado ou não encontrado. Por favor, verifique os canais já liberados para você ou chame um membro de nossa equipe abrindo um ticket em: \n\n**[Abrir Ticket](https://discord.com/channels/1300507024366374922/1325980437759266886)**',
 
       PROCESSING: 'Aguarde enquanto verificamos seu email.',
       SUCCESS:
