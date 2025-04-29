@@ -159,7 +159,7 @@ export async function handleButtonInteraction(interaction) {
     const originalUsername = member.user.username;
 
     const privateChannel = await guild.channels.create({
-      name: normalizedUsername,
+      name: safeChannelName,
       type: ChannelType.GuildText,
       parent: category.id,
       permissionOverwrites: [
