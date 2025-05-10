@@ -1,13 +1,23 @@
 import cron from 'node-cron';
-import { OnboardingHandlers } from '../features/onboarding';
-import { SupportRankingHandlers } from '../features/supportRanking';
+import { OnboardingHandlers } from '../features/onboarding/index.js';
+import { SupportRankingHandlers } from '../features/supportRanking/index.js';
 
+/**
+ * Inicia todas as tarefas agendadas
+ * @param {Client} client - Cliente do Discord
+ */
 export function initializeAllCronJobs(client) {
+  console.log('⏰ Inicializando todas as tarefas agendadas...');
+
   startOnboardingCleanup(client);
   startSupportRanking(client);
 }
 
-function startOnboardingCleanup(client) {
+/**
+ * Agenda a limpeza de canais de onboarding inativos
+ * @param {Client} client - Cliente do Discord
+ */
+export function startOnboardingCleanup(client) {
   console.log('📅 Agendando limpeza automática de canais de onboarding...');
 
   cron.schedule('0 * * * *', async () => {
@@ -25,13 +35,21 @@ function startOnboardingCleanup(client) {
   });
 }
 
-function startSupportRanking(client) {
+/**
+ * Agenda o envio diário do ranking de suporte
+ * @param {Client} client - Cliente do Discord
+ */
+export function startSupportRanking(client) {
   console.log('📅 Agendando envio diário de ranking de suporte...');
 
   cron.schedule(
     '0 7 * * *',
     async () => {
-      await SupportRankingHandlers.handleGetDailyRanking(client);
+      try {
+        await SupportRankingHandlers.handleGetDailyRanking(client);
+      } catch (error) {
+        console.error('❌ Erro ao processar ranking diário:', error);
+      }
     },
     {
       scheduled: true,
