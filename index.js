@@ -11,7 +11,7 @@ import { PurchaseValidationHandlers } from './features/purchaseValidation/index.
 import { SupportRankingHandlers } from './features/supportRanking/index.js';
 import { config } from './config/config.js';
 import * as CronService from './services/cronService.js';
-import { PointsSystemHandlers } from './features/pointsSystem/index.js';
+// import { PointsSystemHandlers } from './features/pointsSystem/index.js';
 
 // Importação das rotas do webhook
 import youtubeUploaderRoutes from './features/youtubeUploader/routes.js';
@@ -154,7 +154,7 @@ client.once('ready', async () => {
   try {
     // Inicializa recursos do Discord
     await PurchaseValidationHandlers.sendInitialMessage(client);
-    await PointsSystemHandlers.sendInitialMessage(client);
+    // await PointsSystemHandlers.sendInitialMessage(client);
 
     const guild = client.guilds.cache.first();
     if (guild) {
@@ -185,21 +185,21 @@ client.on('interactionCreate', async (interaction) => {
         await PurchaseValidationHandlers.handleButtonInteraction(interaction);
       }
 
-      if (interaction.customId === 'points_system_register') {
-        await PointsSystemHandlers.handleButtonInteraction(interaction);
-      }
+      // if (interaction.customId === 'points_system_register') {
+      //   // await PointsSystemHandlers.handleButtonInteraction(interaction);
+      // }
     } else if (interaction.isModalSubmit()) {
       if (interaction.customId === 'email_form') {
         await PurchaseValidationHandlers.handleModalSubmit(interaction);
       }
 
-      if (interaction.customId === 'points_system') {
-        await PointsSystemHandlers.handleModalSubmit(interaction);
-      }
-    } else if (interaction.isCommand()) {
-      if (interaction.commandName === 'meuspontos') {
-        await PointsSystemHandlers.handleUserInteraction(interaction);
-      }
+      // if (interaction.customId === 'points_system') {
+      //   // await PointsSystemHandlers.handleModalSubmit(interaction);
+      // }
+      // } else if (interaction.isCommand()) {
+      //   if (interaction.commandName === 'meuspontos') {
+      //     // await PointsSystemHandlers.handleUserInteraction(interaction);
+      //   }
     }
   } catch (error) {
     console.error('❌ Erro ao processar interação:', error);
